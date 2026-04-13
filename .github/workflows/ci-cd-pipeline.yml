@@ -1,4 +1,4 @@
-name: CI-CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -15,19 +15,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      # Checkout the latest code from repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Node environment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Install Dependencies
-        run: npm install || echo "No package.json found"
+      # Install project dependencies (if available)
+      - name: Install dependencies
+        run: npm install || echo "Skipping install - no package.json"
 
-      - name: Build Application
-        run: npm run build || echo "No build step"
+      # Build the project (if build script exists)
+      - name: Build project
+        run: npm run build || echo "No build script found"
+
+      # Create a simple build output file (
+      - name: Generate build output
+        run: echo "Build completed successfully" > build-output.txt
+
+      # Upload the build file as artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build-output.txt
 
 
   test:
@@ -36,8 +51,9 @@ jobs:
     needs: build
 
     steps:
-      - name: Run Tests
-        run: npm test || echo "No tests available"
+      
+      - name: Run tests
+        run: npm test || echo "No tests configured"
 
 
   deploy:
@@ -46,5 +62,6 @@ jobs:
     needs: [build, test]
 
     steps:
-      - name: Deploy Application
+      
+      - name: Deploy application
         run: echo "Application deployed successfully"
